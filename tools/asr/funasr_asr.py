@@ -34,9 +34,13 @@ def only_asr(input_file):
 def execute_asr(input_folder, output_folder, model_size, language):
     input_file_names = os.listdir(input_folder)
     input_file_names.sort()
-    
+
     output = []
-    output_file_name = os.path.basename(input_folder)
+    folder_name = os.path.basename(input_folder.strip("/\\"))  # 确保移除尾部斜杠
+    if not folder_name:  # 如果文件夹名称为空，提供默认值
+        folder_name = "default_output_name"
+
+    output_file_name = folder_name  # 使用文件夹名作为输出文件名
 
     for file_name in tqdm(input_file_names):
         try:
@@ -46,9 +50,10 @@ def execute_asr(input_folder, output_folder, model_size, language):
         except:
             print(traceback.format_exc())
 
-    output_folder = output_folder or "output/asr_opt"
+    if not output_folder:  # 确保输出文件夹已定义
+        output_folder = "output/asr_opt"
     os.makedirs(output_folder, exist_ok=True)
-    output_file_path = os.path.abspath(f'{output_folder}/{output_file_name}.list')
+    output_file_path = os.path.join(output_folder, f"{output_file_name}.list")  # 使用 os.path.join 构建路径
 
     with open(output_file_path, "w", encoding="utf-8") as f:
         f.write("\n".join(output))
